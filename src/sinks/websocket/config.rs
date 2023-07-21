@@ -63,6 +63,9 @@ pub struct WebSocketSinkConfig {
 
     #[configurable(derived)]
     pub auth: Option<Auth>,
+
+    #[configurable(derived)]
+    pub frame: Option<String>,
 }
 
 impl GenerateConfig for WebSocketSinkConfig {
@@ -75,6 +78,7 @@ impl GenerateConfig for WebSocketSinkConfig {
             ping_timeout: None,
             acknowledgements: Default::default(),
             auth: None,
+            frame: None,
         })
         .unwrap()
     }
@@ -105,7 +109,7 @@ impl SinkConfig for WebSocketSinkConfig {
 impl WebSocketSinkConfig {
     fn build_connector(&self) -> Result<WebSocketConnector, WebSocketError> {
         let tls = MaybeTlsSettings::from_config(&self.tls, false).context(ConnectSnafu)?;
-        WebSocketConnector::new(self.uri.clone(), tls, self.auth.clone())
+        WebSocketConnector::new(self.uri.clone(), tls, self.auth.clone(), self.frame.clone())
     }
 }
 

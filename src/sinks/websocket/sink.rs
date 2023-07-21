@@ -65,6 +65,7 @@ pub struct WebSocketConnector {
     port: u16,
     tls: MaybeTlsSettings,
     auth: Option<Auth>,
+    frame: Option<String>,
 }
 
 impl WebSocketConnector {
@@ -72,6 +73,7 @@ impl WebSocketConnector {
         uri: String,
         tls: MaybeTlsSettings,
         auth: Option<Auth>,
+        frame: Option<String>,
     ) -> Result<Self, WebSocketError> {
         let request = (&uri).into_client_request().context(CreateFailedSnafu)?;
         let (host, port) = Self::extract_host_and_port(&request).context(CreateFailedSnafu)?;
@@ -82,6 +84,7 @@ impl WebSocketConnector {
             port,
             tls,
             auth,
+            frame,
         })
     }
 
@@ -301,6 +304,7 @@ impl WebSocketSink {
                         Ok(()) => {
                             finalizers.update_status(EventStatus::Delivered);
 
+                            let b = Message::binary(bytes);
                             let message = Message::text(String::from_utf8_lossy(&bytes));
                             let message_len = message.len();
 
